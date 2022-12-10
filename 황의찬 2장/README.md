@@ -193,5 +193,59 @@ List<Integer> evenNumbers = filter(numbers , (Integer i) -> i % 2 == 0);
 추상화를 통해 다양한 형식을 사용 가능합니다.  
 
 ## 2.4 실전 예제
+동작 파라미터화 패턴은 동작을 (한 조각의 코드로) 캡슐화한 다음에 메서드로 전달해서 메서드의 동작을 파라미터화합니다.  
+
+### 2.4.1 Comparator로 정렬하기  
+```java
+inventory.sort(new Comparator<Apple>() {
+   @Override
+    public int compare(Apple a1, Apple a2) {
+      return Integer.compare(a1.getWeight(), a2.getWeight());
+    }
+  });
+```
+람다 표현식을 이용하면 간단하게 코드를 구현할 수 있습니다.  
+```java
+inventory.sort((Apple a1, Apple a2) -> a1.getWeight().compareTo(a2.getWeight()));
+```
+
+### 2.4.2 Runnable 로 코드 블록 실행하기
+Java8까지는 Thread `생성자에 객체만을 전달할 수 있었으므로` 보통 결과를 반환하지 않는 void run 메서드를 포함하는 익명 클래스가  
+Runnable 인터페이스를 구현하도록 하는 것이 일반적인 방법이었습니다.  
+```java
+Thread t = new Thread(new Runnable() { //익명 클래스 : 클래스 선언과 인스턴스화 동시에
+      @Override
+      public void run() {
+        System.out.println("hello");
+      }
+    });
+```
+Java8부터 지원하는 람다 표현식을 이용하면 다음처럼 스레드 코드를 구현할 수 있습니다.  
+`Thread lambda = new Thread(() -> System.out.println("hello"));`  
+
+### 2.4.3 Callable을 결과로 반환하기
+ExecutorService는 비동기로 실행하는 작업을 단순화하여 사용할 수 있게 도와주는 자바 API입니다.  
+ExecutorService 인터페이스는 `태스크 제출`과 `실행 과정`의 연관성을 끊어줍니다.  
+태스크를 스레드 풀로 보내고 결과를 Future로 저장할 수 있다는 점이 스레드와 Runnable을 이용하는 방식과는 다릅니다.  
+  
+```java
+Future<String> threadName = ExecutorService executorService = Executors.newCachedThreadPool();
+    executorService.submit(new Callable<String>() {
+      @Override
+      public String call() throws Exception {
+        return Thread.currentThread().getName();
+      }
+    });
+```
+람다를 이용하면 다음처럼 줄일 수 있습니다.
+```java
+Future<String> threadNameWithLambda = executorService.submit(() -> Thread.currentThread().getName());
+```
+
+## 2.5 요약
+- 동작 파라미터화에서는 메서드 내부적으로 다양한 동작을 수행할 수 있도록 코드를 메서드 인수로 전달합니다.      
+- 자바 API의 많은 메서드는 정렬, 스레드, GUI 처리 등을 포함한 다양한 동작으로 파라미터화할 수 있습니다.    
+
+
 
 
